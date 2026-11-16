@@ -1,0 +1,215 @@
+{
+  "get-member-self": {
+    "id": "member-1",
+    "email": "admin@acme.example",
+    "role": "admin",
+    "teams": []
+  },
+  "get-automations": {
+    "account": {
+      "autoFlagging": {
+        "enabled": true,
+        "approvalRequired": true
+      },
+      "autoReleasing": {
+        "enabled": true
+      },
+      "version": 9
+    },
+    "repos": [
+      {
+        "repo": "acme/storefront",
+        "githubRepoId": 101,
+        "mapped": true,
+        "visibleOnInstall": true,
+        "isPublic": false,
+        "projectKey": "default",
+        "autoFlagging": {
+          "enabled": true,
+          "approvalRequired": true,
+          "enabledOverride": false
+        },
+        "autoReleasing": {
+          "enabled": true,
+          "enabledOverride": false
+        }
+      },
+      {
+        "repo": "acme/api",
+        "githubRepoId": 102,
+        "mapped": false,
+        "visibleOnInstall": true,
+        "isPublic": false
+      },
+      {
+        "repo": "acme/demo",
+        "githubRepoId": 103,
+        "mapped": false,
+        "visibleOnInstall": true,
+        "isPublic": true
+      },
+      {
+        "githubRepoId": 999,
+        "mapped": true,
+        "visibleOnInstall": false,
+        "projectKey": "default",
+        "autoFlagging": {
+          "enabled": true,
+          "approvalRequired": true,
+          "enabledOverride": false
+        },
+        "autoReleasing": {
+          "enabled": true,
+          "enabledOverride": false
+        }
+      }
+    ],
+    "totalCount": 4,
+    "hasMore": false
+  },
+  "update-automations": {
+    "autoFlagging": {
+      "enabled": true,
+      "approvalRequired": true
+    },
+    "autoReleasing": {
+      "enabled": false
+    },
+    "version": 10
+  },
+  "delete-automations-repo-settings": {
+    "deleted": true
+  },
+  "get-environment-release-plans": {
+    "items": [],
+    "totalCount": 0
+  },
+  "create-environment-release-plan": {
+    "key": "new-plan",
+    "environmentKey": "{{environmentKey}}",
+    "created": true
+  },
+  "update-default-environment-release-plan": {
+    "changed": true,
+    "previousDefaultKey": null
+  },
+  "get-automations#cleanup": {
+    "projectKey": "{{projectKey}}",
+    "settings": {
+      "schedule": "disabled",
+      "repositories": [],
+      "maxJobsPerRun": 3,
+      "flagStates": [
+        "readyToArchive"
+      ]
+    },
+    "upcoming": {
+      "flagKeys": [
+        "old-banner",
+        "legacy-checkout"
+      ],
+      "nextRunAt": null
+    },
+    "automationsPage": "/projects/{{projectKey}}/settings/automations"
+  },
+  "get-automations#archival": {
+    "projectKey": "{{projectKey}}",
+    "settings": {
+      "enabled": false,
+      "graceSeconds": 604800,
+      "requireApproval": false,
+      "maxArchivalsPerRun": 10
+    },
+    "automationsPage": "/projects/{{projectKey}}/settings/automations"
+  },
+  "search-contexts": {
+    "items": [],
+    "totalCount": 0
+  },
+  "get-projects#projectKey": {
+    "key": "{{projectKey}}",
+    "name": "{{projectKey}}",
+    "environments": [
+      {
+        "key": "test",
+        "name": "Test",
+        "clientSideId": "5f0000000000000000000001",
+        "mobileKey": "mob-00000000-0000-0000-0000-000000000001",
+        "critical": false
+      },
+      {
+        "key": "dev",
+        "name": "Dev",
+        "clientSideId": "5f0000000000000000000003",
+        "mobileKey": "mob-00000000-0000-0000-0000-000000000003",
+        "critical": false
+      },
+      {
+        "key": "staging",
+        "name": "Staging",
+        "clientSideId": "5f0000000000000000000004",
+        "mobileKey": "mob-00000000-0000-0000-0000-000000000004",
+        "critical": false
+      },
+      {
+        "key": "production",
+        "name": "Production",
+        "clientSideId": "5f0000000000000000000002",
+        "mobileKey": "mob-00000000-0000-0000-0000-000000000002",
+        "critical": true
+      }
+    ]
+  },
+  "get-flag-release-plans": {
+    "flagReleasePlans": [
+      {
+        "key": "default-release-configuration",
+        "name": "Default release configuration",
+        "default": true,
+        "executionMode": "sequential",
+        "applicationKeys": [],
+        "environments": [
+          {
+            "environmentKey": "production",
+            "triggerType": "flag_eval",
+            "isImmediate": true
+          }
+        ]
+      }
+    ],
+    "totalCount": 1,
+    "hasMore": false
+  },
+  "get-flag-release-plans#flagReleasePlanKey": {
+    "flagReleasePlans": [
+      {
+        "key": "default-release-configuration",
+        "name": "Default release configuration",
+        "default": true,
+        "executionMode": "sequential",
+        "applicationKeys": [],
+        "environments": [
+          {
+            "environmentKey": "production",
+            "triggerType": "flag_eval",
+            "isImmediate": true
+          }
+        ]
+      }
+    ],
+    "totalCount": 1,
+    "hasMore": false
+  },
+  "create-flag-release-plan": {
+    "projectKey": "{{projectKey}}",
+    "key": "{{key}}"
+  },
+  "update-flag-release-plan": {
+    "projectKey": "{{projectKey}}",
+    "key": "{{flagReleasePlanKey}}"
+  },
+  "delete-flag-release-plan": {
+    "deleted": true,
+    "flagReleasePlanKey": "{{flagReleasePlanKey}}"
+  }
+}

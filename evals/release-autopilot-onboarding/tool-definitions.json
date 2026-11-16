@@ -1,0 +1,787 @@
+[
+  {
+    "name": "get-member-self",
+    "description": "Return the authenticated member's profile and team memberships.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {},
+      "type": "object"
+    }
+  },
+  {
+    "name": "get-automations",
+    "description": "Get Release Autopilot settings: the account-wide auto-flagging and auto-releasing (the master gate a repository cannot exceed) and a page of repositories on the account's GitHub App install, each with mapped true or false and its project and effective settings when mapped. Mapped repositories not visible on the install are listed too, with visibleOnInstall false and no repo name. Pass repo (owner/name) or githubRepoId for one repository. Leave mapped unset to list connected and not-yet-connected repositories together; set it only when the user wants just one of the two groups. When hasMore is true, pass nextOffset as offset. When githubConnectUrl is present, GitHub is not connected: give that link to the user and retry after they finish. reposError means the install could not be read; retry later. section cleanup or archival with projectKey returns that project's auto-cleanup or auto-archival settings; an error saying automatic archival is not available means the account does not have it yet.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "githubRepoId": {
+          "description": "Numeric GitHub repository id, an alternative to repo.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "limit": {
+          "description": "Repositories per page. Defaults to 10.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "mapped": {
+          "description": "true lists only repositories mapped to a project; false only unmapped ones. Omit to list both.",
+          "type": "boolean"
+        },
+        "offset": {
+          "description": "Pass nextOffset from the previous page.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "projectKey": {
+          "description": "Any LaunchDarkly project key, used to look up the account-wide GitHub App install. Defaults to the oldest project.",
+          "type": "string"
+        },
+        "repo": {
+          "description": "GitHub repository as owner/name, for example launchdarkly/gonfalon.",
+          "type": "string"
+        },
+        "section": {
+          "type": "string",
+          "enum": [
+            "repos",
+            "cleanup",
+            "archival"
+          ],
+          "description": "repos (default): account auto-flagging and auto-releasing and the repositories. cleanup: one project's auto-cleanup settings and the flags its next run picks up. archival: one project's auto-archival settings. cleanup and archival require projectKey."
+        }
+      },
+      "type": "object"
+    }
+  },
+  {
+    "name": "update-automations",
+    "description": "Update Automations settings: Release Autopilot auto-flagging and auto-releasing, and a project's auto-cleanup and auto-archival. One change per call. Account auto-flagging and auto-releasing: accountWide true. One repository: accountWide false with repo, and projectKey on the first map. A project's auto-cleanup or auto-archival: projectKey with a cleanup or archival object, and no repo. Saving cleanup makes the calling member the one whose permissions cleanup jobs use, and any schedule other than disabled makes LaunchDarkly open pull requests in the listed repositories, so confirm the schedule, repositories, and maxJobsPerRun with the user first. archival enabled false turns auto-archival off; an agent cannot turn it on: when it is off and enabled true is sent, nothing changes and the result gives the Automations page link for the user.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "accountWide": {
+          "description": "true changes account settings and rejects repo, githubRepoId, and projectKey. false changes one repository and requires repo or githubRepoId.",
+          "type": "boolean"
+        },
+        "autoFlagging": {
+          "additionalProperties": false,
+          "properties": {
+            "approvalRequired": {
+              "description": "Whether auto-flagging pull requests need approval.",
+              "type": "boolean"
+            },
+            "enabled": {
+              "type": "boolean"
+            }
+          },
+          "type": "object"
+        },
+        "autoReleasing": {
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            }
+          },
+          "type": "object"
+        },
+        "confirm": {
+          "description": "Confirm this destructive operation.",
+          "type": "boolean"
+        },
+        "githubRepoId": {
+          "description": "Numeric GitHub repository id, an alternative to repo.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "projectKey": {
+          "description": "Only when accountWide is false: the LaunchDarkly project to map the repository to. Required on the first map.",
+          "type": "string"
+        },
+        "repo": {
+          "description": "GitHub repository as owner/name, for example launchdarkly/gonfalon.",
+          "type": "string"
+        },
+        "cleanup": {
+          "type": "object",
+          "properties": {
+            "schedule": {
+              "type": "string",
+              "enum": [
+                "disabled",
+                "daily",
+                "weekly",
+                "monthly"
+              ]
+            },
+            "repositories": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "maxJobsPerRun": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "flagStates": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "readyToArchive",
+                  "readyForCodeRemoval",
+                  "live"
+                ]
+              }
+            },
+            "customContext": {
+              "type": "string"
+            },
+            "retryAttempted": {
+              "type": "boolean"
+            }
+          }
+        },
+        "archival": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "graceSeconds": {
+              "type": "integer"
+            },
+            "requireApproval": {
+              "type": "boolean"
+            },
+            "maxArchivalsPerRun": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "required": [
+        "confirm"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "delete-automations-repo-settings",
+    "description": "Unmap a GitHub repository from Release Autopilot, removing its project mapping and overrides. Idempotent: an already-unmapped repository still succeeds. Pass repo as owner/name or githubRepoId.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "confirm": {
+          "description": "Confirm this destructive operation.",
+          "type": "boolean"
+        },
+        "githubRepoId": {
+          "description": "Numeric GitHub repository id, an alternative to repo.",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "projectKey": {
+          "description": "Any LaunchDarkly project key, used to look up the account-wide GitHub App install. Defaults to the oldest project.",
+          "type": "string"
+        },
+        "repo": {
+          "description": "GitHub repository as owner/name, for example launchdarkly/gonfalon.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "confirm"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "get-environment-release-plans",
+    "description": "Get environment release plans, reusable progressive-release recipes. Without releasePlanKey: a page of plans, each marked default when it is the environment's default. With releasePlanKey: one plan.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "environmentKey": {
+          "description": "Environment key. If the user hasn't named one, ask; don't guess.",
+          "type": "string"
+        },
+        "limit": {
+          "description": "Only without releasePlanKey. Defaults to 20.",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "description": "Only without releasePlanKey. Pass nextOffset from the previous page.",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "projectKey": {
+          "description": "Project key. If the user hasn't named one, ask; don't guess.",
+          "type": "string"
+        },
+        "releasePlanKey": {
+          "description": "Get one plan. Omit to list plans.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectKey",
+        "environmentKey"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "create-environment-release-plan",
+    "description": "Create an environment release plan, a reusable progressive-release recipe. Does not start a release. Check existing plans with get-environment-release-plans first: an active key returns 409. PHASES: 1-10, each with 1-10 clauses and 1-10 steps. Every phase's clauses must include the randomization unit clause {attribute: \"kind\", op: \"in\", values: [<randomizationUnit>], contextKind: <randomizationUnit>}. STEPS: {allocation, durationMillis}; allocation is per-100k, greater than 0, at most 99000, increasing. Do not add a 100% step. METRICS: keyed object, each value { isGroup, autoRollback? }; {} = progressive.",
+    "input_schema": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "environmentKey": {
+          "description": "Environment key. If the user hasn't named one, ask; don't guess.",
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "progressiveRelease": {
+          "additionalProperties": false,
+          "properties": {
+            "advancementMode": {
+              "enum": [
+                "manual",
+                "automatic"
+              ],
+              "type": "string"
+            },
+            "cleanupBehavior": {
+              "enum": [
+                "leave_rules_in_place",
+                "remove_rules_and_update_default_rule"
+              ],
+              "type": "string"
+            },
+            "metrics": {
+              "type": "object",
+              "description": "Keyed by metric key. {} = progressive. Any key makes releases from this plan guarded. Each value is { isGroup, autoRollback? }.",
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "isGroup": {
+                    "type": "boolean"
+                  },
+                  "autoRollback": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "isGroup"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "phases": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "clauses": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "attribute": {
+                          "type": "string"
+                        },
+                        "contextKind": {
+                          "type": "string"
+                        },
+                        "negate": {
+                          "type": "boolean"
+                        },
+                        "op": {
+                          "enum": [
+                            "in",
+                            "endsWith",
+                            "startsWith",
+                            "matches",
+                            "contains",
+                            "lessThan",
+                            "lessThanOrEqual",
+                            "greaterThan",
+                            "greaterThanOrEqual",
+                            "before",
+                            "after",
+                            "semVerEqual",
+                            "semVerLessThan",
+                            "semVerGreaterThan",
+                            "segmentMatch"
+                          ],
+                          "type": "string"
+                        },
+                        "values": {
+                          "items": true,
+                          "type": "array"
+                        }
+                      },
+                      "required": [
+                        "attribute",
+                        "op",
+                        "values"
+                      ],
+                      "type": "object"
+                    },
+                    "maxItems": 10,
+                    "minItems": 1,
+                    "type": "array"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "steps": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "allocation": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 99000
+                        },
+                        "durationMillis": {
+                          "type": "integer",
+                          "minimum": 1
+                        }
+                      },
+                      "required": [
+                        "allocation",
+                        "durationMillis"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "clauses",
+                  "steps"
+                ],
+                "type": "object"
+              },
+              "maxItems": 10,
+              "minItems": 1,
+              "type": "array"
+            },
+            "randomizationUnit": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "randomizationUnit",
+            "phases"
+          ],
+          "type": "object"
+        },
+        "projectKey": {
+          "description": "Project key. If the user hasn't named one, ask; don't guess.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectKey",
+        "environmentKey",
+        "key",
+        "name",
+        "progressiveRelease"
+      ],
+      "type": "object"
+    }
+  },
+  {
+    "name": "update-default-environment-release-plan",
+    "description": "Set or clear an environment release plan as the environment's default, the plan suggested first when starting a release. default true makes this plan the default; default false clears it only when this plan is the default.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "projectKey": {
+          "type": "string"
+        },
+        "environmentKey": {
+          "type": "string"
+        },
+        "releasePlanKey": {
+          "type": "string"
+        },
+        "default": {
+          "type": "boolean"
+        },
+        "confirm": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "projectKey",
+        "environmentKey",
+        "releasePlanKey",
+        "default",
+        "confirm"
+      ]
+    }
+  },
+  {
+    "name": "search-contexts",
+    "description": "Search for stored LaunchDarkly contexts in an environment by kind, key, or attribute value. Returns context records including their stored attributes. kind filters to one context kind. filter uses `field operator value` clauses with operators equals, notEquals, anyOf, startsWith, exists, before, after; fields include kind, key, and <kind>.<attribute>, for example `user.email exists`.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "projectKey": {
+          "type": "string"
+        },
+        "environmentKey": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "filter": {
+          "type": "string"
+        },
+        "limit": {
+          "type": "number"
+        },
+        "continuationToken": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "projectKey",
+        "environmentKey"
+      ]
+    }
+  },
+  {
+    "name": "get-flag-release-plans",
+    "description": "Get flag release plans, reusable templates that say how a flag is released across a project's environments. Beta API. Without flagReleasePlanKey: a page in creation order with totalCount; when hasMore is true, pass nextOffset as offset. With flagReleasePlanKey: one plan with its environments (environmentKey, triggerType, environmentReleasePlanKey or isImmediate), executionMode, applicationKeys, maintainer, default, and version. A maintainer reads as {kind: member, memberId, email} or {kind: team, key, name}; to send a team maintainer to update-flag-release-plan, use {kind: team, teamKey: <key>}. The plan with default: true is the project's default, suggested first when starting a release. A project with no stored plans lists one built-in default, key default-release-configuration, which cannot be fetched, updated, or deleted by key; create a plan with default: true to replace it. Flag release plans are project-wide; environment release plans (get-environment-release-plans) are the per-environment rollout recipes they point to.",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "projectKey"
+      ],
+      "properties": {
+        "projectKey": {
+          "type": "string",
+          "description": "Project key. If the user hasn't named one, ask; don't guess."
+        },
+        "flagReleasePlanKey": {
+          "type": "string",
+          "description": "Get one plan. Omit to list plans."
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "description": "Only without flagReleasePlanKey. Defaults to 20."
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Only without flagReleasePlanKey. Pass nextOffset from the previous page."
+        }
+      }
+    }
+  },
+  {
+    "name": "create-flag-release-plan",
+    "description": "Create a flag release plan, a reusable project-wide template for releasing flags across environments. Does not start a release on a flag. Beta API. Requires key, name, and environments. A key already in use returns an error; check get-flag-release-plans first. RULES: 1-50 environments, each listed once, in release order. Each environment needs environmentKey and triggerType, plus environmentReleasePlanKey unless isImmediate is true (never both). The environment release plan must already exist in that environment and be complete; find one with get-environment-release-plans. triggerType: flag_eval starts when the flag is first evaluated there, webhook waits for a deploy signal, manual waits for a person, promotion starts when the previous environment finishes. manual and promotion need executionMode sequential (the default), and the first environment cannot use promotion. executionMode parallel starts every environment independently. At most 25 applicationKeys. A project holds at most 100 flag release plans and at most one default. When another plan is already the project's default, do not send default: true: LaunchDarkly rejects the create. Create the plan without default, then set default: true with update-flag-release-plan, which demotes the current default; say so to the user first. Send default: true only when the project has no stored default.",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "projectKey",
+        "key",
+        "name",
+        "environments"
+      ],
+      "properties": {
+        "projectKey": {
+          "type": "string",
+          "description": "Project key. If the user hasn't named one, ask; don't guess."
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[a-zA-Z0-9][._a-zA-Z0-9-]*$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "maintainer": {
+          "description": "A member ({kind: member, memberId}) or a team ({kind: team, teamKey}).",
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "memberId"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "member"
+                },
+                "memberId": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "teamKey"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "team"
+                },
+                "teamKey": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          ]
+        },
+        "executionMode": {
+          "type": "string",
+          "enum": [
+            "sequential",
+            "parallel"
+          ],
+          "description": "Defaults to sequential."
+        },
+        "applicationKeys": {
+          "type": "array",
+          "maxItems": 25,
+          "items": {
+            "type": "string"
+          }
+        },
+        "environments": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "environmentKey",
+              "triggerType"
+            ],
+            "properties": {
+              "environmentKey": {
+                "type": "string"
+              },
+              "triggerType": {
+                "type": "string",
+                "enum": [
+                  "flag_eval",
+                  "webhook",
+                  "manual",
+                  "promotion"
+                ]
+              },
+              "environmentReleasePlanKey": {
+                "type": "string",
+                "description": "The environment release plan to run in this environment. Required unless isImmediate is true."
+              },
+              "isImmediate": {
+                "type": "boolean",
+                "description": "true releases to everyone at once, with no environment release plan."
+              }
+            }
+          }
+        },
+        "default": {
+          "type": "boolean",
+          "description": "Only when get-flag-release-plans shows no stored plan with default: true. If another plan is the default, omit this field: create the plan, then make it the default with update-flag-release-plan."
+        }
+      }
+    }
+  },
+  {
+    "name": "update-flag-release-plan",
+    "description": "Update a flag release plan's name, description, maintainer, executionMode, applicationKeys, default, or environments. Beta API. Send only the fields to change; omitted fields keep their current values, including default. environments and applicationKeys are each replaced wholesale when provided, so include every entry to keep. default: true makes this plan the project's default and demotes the current one; default: false unsets this plan as the default and keeps the plan, so the project has no default until another plan is set. To delete a plan, use delete-flag-release-plan. The update is checked against the version that was read, so a concurrent edit returns an error instead of being overwritten; retry to apply it to the current plan. Flag releases already started from the plan are not affected. RULES: 1-50 environments, each listed once, in release order. Each environment needs environmentKey and triggerType, plus environmentReleasePlanKey unless isImmediate is true (never both). The environment release plan must already exist in that environment and be complete; find one with get-environment-release-plans. triggerType: flag_eval starts when the flag is first evaluated there, webhook waits for a deploy signal, manual waits for a person, promotion starts when the previous environment finishes. manual and promotion need executionMode sequential (the default), and the first environment cannot use promotion. executionMode parallel starts every environment independently. At most 25 applicationKeys. A project holds at most 100 flag release plans and at most one default. Returns the plan as read back after the update.",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "projectKey",
+        "flagReleasePlanKey",
+        "confirm"
+      ],
+      "properties": {
+        "projectKey": {
+          "type": "string",
+          "description": "Project key. If the user hasn't named one, ask; don't guess."
+        },
+        "flagReleasePlanKey": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1024
+        },
+        "maintainer": {
+          "description": "A member ({kind: member, memberId}) or a team ({kind: team, teamKey}).",
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "memberId"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "member"
+                },
+                "memberId": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "teamKey"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "team"
+                },
+                "teamKey": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          ]
+        },
+        "executionMode": {
+          "type": "string",
+          "enum": [
+            "sequential",
+            "parallel"
+          ],
+          "description": "Defaults to sequential."
+        },
+        "applicationKeys": {
+          "type": "array",
+          "maxItems": 25,
+          "items": {
+            "type": "string"
+          }
+        },
+        "environments": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "environmentKey",
+              "triggerType"
+            ],
+            "properties": {
+              "environmentKey": {
+                "type": "string"
+              },
+              "triggerType": {
+                "type": "string",
+                "enum": [
+                  "flag_eval",
+                  "webhook",
+                  "manual",
+                  "promotion"
+                ]
+              },
+              "environmentReleasePlanKey": {
+                "type": "string",
+                "description": "The environment release plan to run in this environment. Required unless isImmediate is true."
+              },
+              "isImmediate": {
+                "type": "boolean",
+                "description": "true releases to everyone at once, with no environment release plan."
+              }
+            }
+          }
+        },
+        "default": {
+          "type": "boolean",
+          "description": "Omit to keep the current value. true makes this the default and demotes the current default; false unsets this plan as the default and keeps the plan."
+        },
+        "confirm": {
+          "type": "boolean",
+          "description": "Confirm this destructive operation."
+        }
+      }
+    }
+  },
+  {
+    "name": "delete-flag-release-plan",
+    "description": "Permanently delete a flag release plan. Beta API. Flag releases already started from it keep running. Deleting the default plan leaves the project without a default. The key can be reused afterward.",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "projectKey",
+        "flagReleasePlanKey",
+        "confirm"
+      ],
+      "properties": {
+        "projectKey": {
+          "type": "string",
+          "description": "Project key. If the user hasn't named one, ask; don't guess."
+        },
+        "flagReleasePlanKey": {
+          "type": "string"
+        },
+        "confirm": {
+          "type": "boolean",
+          "description": "Confirm this destructive operation."
+        }
+      }
+    }
+  }
+]
