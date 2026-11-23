@@ -1,0 +1,763 @@
+{
+  "get-flags": {
+    "flags": [
+      {
+        "key": "enable-notifications",
+        "name": "Enable Notifications",
+        "kind": "boolean",
+        "description": "Enables push notification system",
+        "temporary": true,
+        "tags": [
+          "backend",
+          "notifications"
+        ],
+        "on": true,
+        "variations": [
+          {
+            "value": true,
+            "name": "Enabled"
+          },
+          {
+            "value": false,
+            "name": "Disabled"
+          }
+        ]
+      },
+      {
+        "key": "search-v2",
+        "name": "Search V2",
+        "kind": "boolean",
+        "description": "Enables the new search backend",
+        "temporary": true,
+        "tags": [
+          "backend",
+          "search"
+        ],
+        "on": true,
+        "variations": [
+          {
+            "value": true,
+            "name": "Enabled"
+          },
+          {
+            "value": false,
+            "name": "Disabled"
+          }
+        ]
+      }
+    ],
+    "totalCount": 2,
+    "pageInfo": {
+      "limit": 20,
+      "offset": 0
+    }
+  },
+  "get-flags#flagKey": {
+    "key": "{{flagKey}}",
+    "name": "{{flagName}}",
+    "kind": "boolean",
+    "description": "Feature flag",
+    "temporary": true,
+    "tags": [],
+    "variations": [
+      {
+        "_id": "var-true",
+        "value": true,
+        "name": "true"
+      },
+      {
+        "_id": "var-false",
+        "value": false,
+        "name": "false"
+      }
+    ],
+    "defaults": {
+      "onVariation": 0,
+      "offVariation": 1
+    },
+    "environment": {
+      "on": false,
+      "version": 1,
+      "rules": [],
+      "targets": [],
+      "fallthrough": {
+        "variation": 1
+      },
+      "offVariation": 1
+    }
+  },
+  "create-flag": {
+    "key": "{{flagKey}}",
+    "name": "{{flagName}}",
+    "kind": "boolean",
+    "description": "",
+    "temporary": true,
+    "tags": [],
+    "variations": [
+      {
+        "_id": "var-true",
+        "value": true,
+        "name": "true"
+      },
+      {
+        "_id": "var-false",
+        "value": false,
+        "name": "false"
+      }
+    ],
+    "defaults": {
+      "onVariation": 0,
+      "offVariation": 1
+    },
+    "environments": {
+      "production": {
+        "on": false,
+        "version": 1
+      },
+      "staging": {
+        "on": false,
+        "version": 1
+      }
+    }
+  },
+  "update-flag": {
+    "key": "{{flagKey}}",
+    "name": "{{flagName}}",
+    "description": "",
+    "temporary": true,
+    "tags": [],
+    "maintainer": null
+  },
+  "toggle-flag": {
+    "env": "{{environmentKey}}",
+    "key": "{{flagKey}}",
+    "on": true,
+    "previousState": false
+  },
+  "get-flag-health": {
+    "key": "{{flagKey}}",
+    "name": "Search V2",
+    "env": "{{environmentKey}}",
+    "status": "active",
+    "lastRequested": "2026-10-27T18:04:11Z",
+    "temporary": true,
+    "ageDays": 41,
+    "targeting": {
+      "on": true,
+      "rules": 1,
+      "targets": 2
+    }
+  },
+  "get-flag-status-across-envs": {
+    "key": "{{flagKey}}",
+    "environments": {
+      "production": {
+        "name": "active",
+        "lastRequested": "2026-10-27T18:04:11Z"
+      },
+      "staging": {
+        "name": "active",
+        "lastRequested": "2026-10-28T09:12:40Z"
+      },
+      "test": {
+        "name": "inactive",
+        "lastRequested": "2026-09-30T14:00:00Z"
+      }
+    }
+  },
+  "get-projects": {
+    "projects": [
+      {
+        "key": "default",
+        "name": "LaunchDarkly",
+        "tags": []
+      }
+    ],
+    "totalCount": 1,
+    "pageInfo": {
+      "limit": 25,
+      "offset": 0
+    }
+  },
+  "get-projects#projectKey": {
+    "key": "{{projectKey}}",
+    "name": "{{projectKey}}",
+    "environments": [
+      {
+        "key": "test",
+        "name": "Test",
+        "clientSideId": "5f0000000000000000000001",
+        "mobileKey": "mob-00000000-0000-0000-0000-000000000001"
+      },
+      {
+        "key": "dev",
+        "name": "Dev",
+        "clientSideId": "5f0000000000000000000003",
+        "mobileKey": "mob-00000000-0000-0000-0000-000000000003"
+      },
+      {
+        "key": "staging",
+        "name": "Staging",
+        "clientSideId": "5f0000000000000000000004",
+        "mobileKey": "mob-00000000-0000-0000-0000-000000000004"
+      },
+      {
+        "key": "production",
+        "name": "Production",
+        "clientSideId": "5f0000000000000000000002",
+        "mobileKey": "mob-00000000-0000-0000-0000-000000000002"
+      }
+    ]
+  },
+  "create-project": {
+    "key": "{{newProjectKey}}",
+    "name": "{{newProjectName}}",
+    "tags": [],
+    "environments": [
+      {
+        "key": "production",
+        "name": "Production",
+        "clientSideId": "clientside-prod-abcdef12"
+      },
+      {
+        "key": "test",
+        "name": "Test",
+        "clientSideId": "clientside-test-abcdef12"
+      }
+    ]
+  },
+  "get-agent-configs": {
+    "configs": [
+      {
+        "key": "support-chatbot",
+        "name": "Support Chatbot",
+        "mode": "agent",
+        "description": "Agent-powered support agent for customer tickets",
+        "tags": [
+          "support",
+          "production"
+        ],
+        "variationsCount": 2,
+        "archived": false
+      },
+      {
+        "key": "code-reviewer",
+        "name": "Code Review Assistant",
+        "mode": "completion",
+        "description": "Automated code review assistant for pull requests",
+        "tags": [
+          "engineering"
+        ],
+        "variationsCount": 1,
+        "archived": false
+      },
+      {
+        "key": "content-writer",
+        "name": "Content Writer",
+        "mode": "completion",
+        "description": "Marketing content generation",
+        "tags": [
+          "marketing"
+        ],
+        "variationsCount": 3,
+        "archived": false
+      }
+    ],
+    "totalCount": 3
+  },
+  "get-agent-configs#configKey": {
+    "key": "{{configKey}}",
+    "name": "{{configName}}",
+    "mode": "agent",
+    "description": "config",
+    "tags": [],
+    "archived": false,
+    "variations": [
+      {
+        "key": "default",
+        "name": "Default",
+        "modelConfigKey": "OpenAI.gpt-4o",
+        "modelName": "gpt-4o",
+        "instructions": "You are a helpful assistant that answers questions concisely.",
+        "status": "active",
+        "parameters": {
+          "temperature": 0.7,
+          "max_tokens": 2048
+        }
+      }
+    ]
+  },
+  "create-agent-config": {
+    "key": "{{configKey}}",
+    "name": "{{configName}}",
+    "mode": "{{mode}}",
+    "description": "",
+    "tags": []
+  },
+  "update-agent-config": {
+    "key": "{{configKey}}",
+    "name": "{{configName}}",
+    "description": "",
+    "tags": []
+  },
+  "delete-agent-config": {
+    "deleted": true,
+    "key": "{{configKey}}"
+  },
+  "create-agent-config#with-variation": {
+    "key": "{{configKey}}",
+    "name": "{{configName}}",
+    "mode": "{{mode}}",
+    "description": "",
+    "tags": [],
+    "archived": false,
+    "variations": [
+      {
+        "key": "{{variationKey}}",
+        "name": "{{variationName}}",
+        "modelConfigKey": "{{modelConfigKey}}",
+        "modelName": "{{modelName}}",
+        "instructions": "You are a helpful assistant that answers questions concisely.",
+        "status": "active",
+        "parameters": {
+          "temperature": 0.7
+        }
+      }
+    ]
+  },
+  "get-agent-configs#health": {
+    "key": "{{configKey}}",
+    "name": "{{configName}}",
+    "mode": "agent",
+    "health": "healthy",
+    "variationsCount": 1,
+    "issues": [],
+    "variations": [
+      {
+        "key": "default",
+        "name": "Default",
+        "hasModel": true,
+        "hasPrompts": true,
+        "toolsAttached": 0
+      }
+    ]
+  },
+  "get-agent-configs#status": {
+    "configKey": "{{configKey}}",
+    "environments": {
+      "production": {
+        "state": "inactive",
+        "lastRequested": "2026-09-01T12:00:00Z",
+        "on": true
+      },
+      "staging": {
+        "state": "inactive",
+        "lastRequested": "2026-08-28T09:30:00Z",
+        "on": true
+      }
+    },
+    "summary": {
+      "activeIn": [],
+      "inactiveIn": [
+        "production",
+        "staging"
+      ],
+      "launchedIn": []
+    }
+  },
+  "create-agent-config#variation": {
+    "configKey": "{{configKey}}",
+    "variation": {
+      "key": "{{variationKey}}",
+      "name": "{{variationName}}",
+      "modelConfigKey": "{{modelConfigKey}}",
+      "modelName": "{{modelName}}",
+      "instructions": "You are a helpful assistant that answers questions concisely.",
+      "status": "active",
+      "parameters": {
+        "temperature": 0.7
+      }
+    }
+  },
+  "update-agent-config#variation": {
+    "configKey": "{{configKey}}",
+    "variation": {
+      "key": "{{variationKey}}",
+      "name": "{{variationName}}",
+      "modelConfigKey": "{{modelConfigKey}}",
+      "modelName": "{{modelName}}",
+      "instructions": "Updated instructions for the agent.",
+      "status": "active",
+      "parameters": {
+        "temperature": 0.7
+      }
+    }
+  },
+  "delete-agent-config#variation": {
+    "deleted": true,
+    "configKey": "{{configKey}}",
+    "variationKey": "{{variationKey}}"
+  },
+  "update-agent-config#targeting": {
+    "configKey": "{{configKey}}",
+    "env": "{{environmentKey}}",
+    "fallthrough": {
+      "variationKey": "{{variationKey}}"
+    },
+    "previousFallthrough": {
+      "variationKey": "disabled"
+    }
+  },
+  "create-agent-config#variation-clone": {
+    "configKey": "{{configKey}}",
+    "source": {
+      "key": "default",
+      "name": "Default",
+      "modelConfigKey": "OpenAI.gpt-4o",
+      "modelName": "gpt-4o",
+      "instructions": "You are a helpful assistant that answers questions concisely.",
+      "status": "active",
+      "parameters": {
+        "temperature": 0.7,
+        "max_tokens": 2048
+      },
+      "tools": [
+        {
+          "key": "search-docs",
+          "version": 2
+        },
+        {
+          "key": "run-query",
+          "version": 1
+        }
+      ]
+    },
+    "created": {
+      "key": "{{variationKey}}",
+      "name": "{{variationName}}",
+      "modelConfigKey": "{{modelConfigKey}}",
+      "modelName": "{{modelName}}",
+      "instructions": "You are a helpful assistant that answers questions concisely.",
+      "status": "active",
+      "parameters": {
+        "temperature": 0.7,
+        "max_tokens": 2048
+      },
+      "tools": [
+        {
+          "key": "search-docs",
+          "version": 2
+        },
+        {
+          "key": "run-query",
+          "version": 1
+        }
+      ]
+    }
+  },
+  "get-ai-tools": {
+    "tools": [
+      {
+        "key": "search-docs",
+        "description": "Search internal documentation",
+        "schema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Search query"
+            },
+            "limit": {
+              "type": "number",
+              "description": "Max results"
+            }
+          },
+          "required": [
+            "query"
+          ]
+        }
+      },
+      {
+        "key": "run-query",
+        "description": "Run a database query",
+        "schema": null
+      }
+    ],
+    "totalCount": 2
+  },
+  "get-ai-tools#toolKey": {
+    "key": "{{toolKey}}",
+    "description": "Search internal documentation",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "Search query"
+        },
+        "limit": {
+          "type": "number",
+          "description": "Max results"
+        }
+      },
+      "required": [
+        "query"
+      ]
+    }
+  },
+  "create-ai-tool": {
+    "key": "{{toolKey}}",
+    "description": "{{toolDescription}}",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "input": {
+          "type": "string",
+          "description": "Input value"
+        }
+      }
+    }
+  },
+  "recommend-flag": {
+    "recorded": true,
+    "advisory": true,
+    "note": "Advisory recommendation recorded. This tool does not create, modify, toggle, or delete any feature flag."
+  },
+  "match-release-policies": {
+    "matchingPolicies": [
+      {
+        "key": "guarded-default",
+        "name": "Guarded rollout",
+        "rank": 1,
+        "releaseMethod": "guarded-release",
+        "scope": {
+          "environmentKeys": [
+            "production"
+          ],
+          "flagTagKeys": []
+        },
+        "guardedReleaseConfig": {
+          "metricKeys": [
+            "error-rate",
+            "latency-p95"
+          ],
+          "metricGroupKeys": []
+        }
+      }
+    ],
+    "winningPolicy": {
+      "key": "guarded-default",
+      "name": "Guarded rollout",
+      "rank": 1,
+      "releaseMethod": "guarded-release",
+      "scope": {
+        "environmentKeys": [
+          "production"
+        ],
+        "flagTagKeys": []
+      },
+      "guardedReleaseConfig": {
+        "metricKeys": [
+          "error-rate",
+          "latency-p95"
+        ],
+        "metricGroupKeys": []
+      }
+    },
+    "warnings": [],
+    "criteria": {
+      "projectKey": "{{projectKey}}",
+      "environmentKey": "{{environmentKey}}",
+      "flagKey": "{{flagKey}}",
+      "flagTags": null
+    }
+  },
+  "get-release-policies": {
+    "policies": [
+      {
+        "key": "guarded-default",
+        "name": "Guarded rollout",
+        "rank": 1,
+        "releaseMethod": "guarded-release",
+        "scope": {
+          "environmentKeys": [
+            "production"
+          ],
+          "flagTagKeys": []
+        },
+        "guardedReleaseConfig": {
+          "metricKeys": [
+            "error-rate",
+            "latency-p95"
+          ],
+          "metricGroupKeys": []
+        }
+      }
+    ],
+    "count": 1,
+    "warnings": []
+  },
+  "create-automated-rollout-config": {
+    "created": true,
+    "config_id": "arc_mock_0001",
+    "environments": []
+  },
+  "get-metrics": {
+    "metrics": [
+      {
+        "key": "checkout-completed",
+        "name": "Checkout completed",
+        "kind": "custom",
+        "measureType": "occurrence",
+        "isNumeric": false,
+        "unitAggregationType": "average",
+        "successCriteria": "HigherThanBaseline",
+        "eventKey": "checkout-completed",
+        "tags": [
+          "conversion"
+        ]
+      },
+      {
+        "key": "page-load-ms",
+        "name": "Page load time (ms)",
+        "kind": "custom",
+        "measureType": "value",
+        "isNumeric": true,
+        "unitAggregationType": "average",
+        "successCriteria": "LowerThanBaseline",
+        "eventKey": "page-load-ms",
+        "tags": [
+          "performance"
+        ]
+      }
+    ],
+    "totalCount": 2
+  },
+  "create-metric": {
+    "key": "{{metricKey}}",
+    "name": "{{metricName}}",
+    "kind": "custom",
+    "measureType": "occurrence",
+    "successCriteria": "HigherThanBaseline",
+    "eventKey": "{{metricKey}}",
+    "tags": []
+  },
+  "create-experiment": {
+    "key": "{{experimentKey}}",
+    "name": "{{experimentName}}",
+    "description": "",
+    "currentIteration": {
+      "id": "iter-0001",
+      "status": "not_started",
+      "canReshuffleTraffic": false,
+      "hypothesis": "{{hypothesis}}",
+      "treatments": [
+        {
+          "id": "treat-control",
+          "name": "Control",
+          "baseline": true,
+          "allocationPercent": 50
+        },
+        {
+          "id": "treat-treatment",
+          "name": "Treatment",
+          "baseline": false,
+          "allocationPercent": 50
+        }
+      ],
+      "metrics": []
+    },
+    "createdAt": "2026-10-01T00:00:00Z",
+    "dataCollection": "not started — this experiment is a draft. It is not collecting data and is not affecting any end users yet.",
+    "designUrl": "https://app.launchdarkly.com/projects/{{projectKey}}/experiments/{{experimentKey}}/design?selected-env={{environmentKey}}",
+    "nextSteps": "Summarize the experiment design for the user. Starting the experiment requires their explicit confirmation; do not call start-experiment-iteration until they ask for it."
+  },
+  "start-experiment-iteration": {
+    "key": "{{experimentKey}}",
+    "name": "{{experimentName}}",
+    "description": "",
+    "currentIteration": {
+      "id": "iter-0001",
+      "status": "running",
+      "canReshuffleTraffic": false,
+      "hypothesis": "{{hypothesis}}",
+      "treatments": [
+        {
+          "id": "treat-control",
+          "name": "Control",
+          "baseline": true,
+          "allocationPercent": 50
+        },
+        {
+          "id": "treat-treatment",
+          "name": "Treatment",
+          "baseline": false,
+          "allocationPercent": 50
+        }
+      ],
+      "metrics": [],
+      "startDate": "2026-10-28T00:00:00Z"
+    },
+    "createdAt": "2026-10-01T00:00:00Z",
+    "dataCollection": "running — the experiment is collecting data and allocating live end-user traffic across its treatments.",
+    "designUrl": "https://app.launchdarkly.com/projects/{{projectKey}}/experiments/{{experimentKey}}/design?selected-env={{environmentKey}}",
+    "resultsUrl": "https://app.launchdarkly.com/projects/{{projectKey}}/experiments/{{experimentKey}}/results?selected-env={{environmentKey}}"
+  },
+  "get-experiments#experimentKey": {
+    "key": "{{experimentKey}}",
+    "name": "{{experimentName}}",
+    "description": "",
+    "currentIteration": {
+      "id": "iter-0001",
+      "status": "not_started",
+      "canReshuffleTraffic": false,
+      "hypothesis": "{{hypothesis}}",
+      "treatments": [
+        {
+          "id": "treat-control",
+          "name": "Control",
+          "baseline": true,
+          "allocationPercent": 50
+        },
+        {
+          "id": "treat-treatment",
+          "name": "Treatment",
+          "baseline": false,
+          "allocationPercent": 50
+        }
+      ],
+      "metrics": []
+    },
+    "createdAt": "2026-10-01T00:00:00Z",
+    "dataCollection": "not started — this experiment is a draft. It is not collecting data and is not affecting any end users yet.",
+    "designUrl": "https://app.launchdarkly.com/projects/{{projectKey}}/experiments/{{experimentKey}}/design?selected-env={{environmentKey}}"
+  },
+  "get-environment": {
+    "key": "{{environmentKey}}",
+    "name": "Production",
+    "clientSideId": "clientside-prod-abcdef12",
+    "mobileKey": "mob-prod-abcdef12-3456-7890-abcd-ef1234567890",
+    "approvalSettings": {
+      "required": false
+    }
+  },
+  "get-sdk-key": {
+    "sdkKey": "sdk-prod-abcdef12-3456-7890-abcd-ef1234567890"
+  },
+  "get-experiments": {
+    "experiments": [
+      {
+        "key": "{{experimentKey}}",
+        "name": "{{experimentName}}",
+        "description": "",
+        "currentIteration": {
+          "id": "iter-0001",
+          "status": "not_started",
+          "canReshuffleTraffic": false,
+          "hypothesis": "{{hypothesis}}"
+        }
+      }
+    ],
+    "totalCount": 1
+  }
+}
